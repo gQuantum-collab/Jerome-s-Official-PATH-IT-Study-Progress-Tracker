@@ -1,6 +1,36 @@
+'use client'
+
 import { ShieldCheckIcon, BookOpenIcon, ChartBarIcon, CloudIcon } from '@heroicons/react/24/outline'
+import { useAuth } from '@/lib/auth'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function Home() {
+  const { user, loading, signInWithGoogle } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (user && !loading) {
+      router.push('/dashboard')
+    }
+  }, [user, loading, router])
+
+  const handleSignIn = async () => {
+    try {
+      await signInWithGoogle()
+    } catch (error) {
+      console.error('Sign in failed:', error)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+      </div>
+    )
+  }
+
   return (
     <main className="container mx-auto px-4 py-8">
       {/* Header */}
@@ -55,8 +85,12 @@ export default function Home() {
           <p className="text-gray-600 dark:text-gray-400 mb-6">
             Sign in to access your personalized dashboard and start tracking your cybersecurity education journey.
           </p>
-          <button className="btn-primary w-full">
-            Sign In with Google
+          <button 
+            onClick={handleSignIn}
+            className="btn-primary w-full"
+            disabled={loading}
+          >
+            {loading ? 'Signing in...' : 'Sign In with Google'}
           </button>
         </div>
       </div>
